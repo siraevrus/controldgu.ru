@@ -64,3 +64,7 @@
 - Тревоги: список открытых, карточка, подтверждение с комментарием (только admin), аудит `alert.acknowledged`.
 - Навигация: ДГУ, Тревоги, Пороги (для admin).
 - Базовый `Controller` расширяет `Illuminate\Routing\Controller` + `AuthorizesRequests` для `authorizeResource`.
+
+- Фаза 2 (часть): письмо при новой тревоге (`AlertOpenedMail`), запись в `system_logs`, UI уведомлений с «прочитано», страницы **Аудит** и **Системные логи**, приглашение пользователей (создание + ссылка сброса пароля), роль `operator` в сидере, опубликованы markdown-шаблоны почты (`php artisan vendor:publish --tag=laravel-mail`).
+
+- Фаза 3 (часть): **Карта** `/map` (Leaflet + OSM, маркер на ДГУ с координатами, цвет по связи / ручному отключению / состоянию), **Управление** `/management` (заготовка + ссылки), на карточке ДГУ — запуск/остановка (демо) с модалкой подтверждения и аудитом `dgu.operational.start` / `dgu.operational.stop` (роли `admin` и `operator`). Публичная регистрация выключена по умолчанию (`ALLOW_PUBLIC_REGISTRATION=false`): форма `/register` отвечает 404, ссылка на welcome скрыта.

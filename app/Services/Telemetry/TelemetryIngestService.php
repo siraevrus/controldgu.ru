@@ -2,21 +2,26 @@
 
 namespace App\Services\Telemetry;
 
+use App\Mail\AlertOpenedMail;
 use App\Models\Alert;
 use App\Models\AlertEvent;
 use App\Models\AppNotification;
 use App\Models\Dgu;
 use App\Models\GlobalThreshold;
+use App\Models\SystemLog;
 use App\Models\TelemetrySnapshot;
 use App\Models\User;
 use App\Support\TelemetryParameters;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class TelemetryIngestService
 {
     public function ingest(Dgu $dgu, array $values, ?\DateTimeInterface $recordedAt = null): TelemetrySnapshot
     {
-        $recordedAt = $recordedAt ? \Illuminate\Support\Carbon::parse($recordedAt) : now();
+        $recordedAt = $recordedAt ? Carbon::parse($recordedAt) : now();
 
         return DB::transaction(function () use ($dgu, $values, $recordedAt) {
             $snapshot = TelemetrySnapshot::query()->create([
@@ -97,6 +102,18 @@ class TelemetryIngestService
                 'meta' => ['value' => $num],
             ]);
 
+            SystemLog::query()->create([
+                'source' => 'alerts',
+                'level' => 'warning',
+                'message' => "Открыта тревога #{$alert->id} ({$slug}) — ДГУ {$dgu->serial_number}",
+                'context' => [
+                    'alert_id' => $alert->id,
+                    'dgu_id' => $dgu->id,
+                    'value' => $num,
+                ],
+                'created_at' => now(),
+            ]);
+
             $this->notifyAdminsAboutAlert($dgu, $alert);
         }
     }
@@ -113,6 +130,16 @@ class TelemetryIngestService
                 'body' => $dgu->name ?? $dgu->serial_number,
                 'data' => ['alert_id' => $alert->id],
             ]);
+
+            try {
+                Mail::to($user->email)->send(new AlertOpenedMail($alert, $dgu));
+            } catch (\Throwable $e) {
+                Log::error('alert.mail_failed', [
+                    'alert_id' => $alert->id,
+                    'user_id' => $user->id,
+                    'message' => $e->getMessage(),
+                ]);
+            }
         }
     }
 }

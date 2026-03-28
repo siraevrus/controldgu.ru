@@ -8,14 +8,18 @@ use App\Models\User;
 use App\Support\TelemetryParameters;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        $adminRole = Role::query()->firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+        Role::query()->firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+        Role::query()->firstOrCreate(['name' => 'operator', 'guard_name' => 'web']);
+
+        $adminRole = Role::query()->where('name', 'admin')->where('guard_name', 'web')->firstOrFail();
 
         $admin = User::query()->firstOrCreate(
             ['email' => 'admin@controldgu.local'],

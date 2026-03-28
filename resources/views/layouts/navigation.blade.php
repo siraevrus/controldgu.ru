@@ -18,12 +18,30 @@
                     <x-nav-link :href="route('dgus.index')" :active="request()->routeIs('dgus.*')">
                         ДГУ
                     </x-nav-link>
+                    <x-nav-link :href="route('map.index')" :active="request()->routeIs('map.*')">
+                        Карта
+                    </x-nav-link>
+                    <x-nav-link :href="route('management.index')" :active="request()->routeIs('management.*')">
+                        Управление
+                    </x-nav-link>
                     <x-nav-link :href="route('alerts.index')" :active="request()->routeIs('alerts.*')">
                         Тревоги
+                    </x-nav-link>
+                    <x-nav-link :href="route('notifications.index')" :active="request()->routeIs('notifications.*')">
+                        Уведомления
                     </x-nav-link>
                     @if(auth()->user()->hasRole('admin'))
                     <x-nav-link :href="route('settings.thresholds.index')" :active="request()->routeIs('settings.thresholds.*')">
                         Пороги
+                    </x-nav-link>
+                    <x-nav-link :href="route('settings.audit.index')" :active="request()->routeIs('settings.audit.*')">
+                        Аудит
+                    </x-nav-link>
+                    <x-nav-link :href="route('settings.logs.index')" :active="request()->routeIs('settings.logs.*')">
+                        Логи
+                    </x-nav-link>
+                    <x-nav-link :href="route('settings.users.index')" :active="request()->routeIs('settings.users.*')">
+                        Пользователи
                     </x-nav-link>
                     @endif
                 </div>
@@ -84,12 +102,30 @@
             <x-responsive-nav-link :href="route('dgus.index')" :active="request()->routeIs('dgus.*')">
                 ДГУ
             </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('map.index')" :active="request()->routeIs('map.*')">
+                Карта
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('management.index')" :active="request()->routeIs('management.*')">
+                Управление
+            </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('alerts.index')" :active="request()->routeIs('alerts.*')">
                 Тревоги
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('notifications.index')" :active="request()->routeIs('notifications.*')">
+                Уведомления
             </x-responsive-nav-link>
             @if(auth()->user()->hasRole('admin'))
             <x-responsive-nav-link :href="route('settings.thresholds.index')" :active="request()->routeIs('settings.thresholds.*')">
                 Пороги
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('settings.audit.index')" :active="request()->routeIs('settings.audit.*')">
+                Аудит
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('settings.logs.index')" :active="request()->routeIs('settings.logs.*')">
+                Логи
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('settings.users.index')" :active="request()->routeIs('settings.users.*')">
+                Пользователи
             </x-responsive-nav-link>
             @endif
         </div>

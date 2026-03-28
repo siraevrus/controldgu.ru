@@ -26,7 +26,11 @@
                     <p class="text-xs">Передавайте в заголовке <code>Authorization: Bearer …</code> или <code>X-Dgu-Token</code>.</p>
                 </div>
             @endif
-            @if (session('status'))
+            @if (session('status') === 'dgu-operational-updated')
+                <div class="rounded-md bg-green-50 p-4 text-green-800 text-sm">Состояние ДГУ обновлено (демо).</div>
+            @elseif (session('status') === 'dgu-operational-unchanged')
+                <div class="rounded-md bg-gray-50 p-4 text-gray-700 text-sm">Уже выбрано это состояние.</div>
+            @elseif (session('status'))
                 <div class="rounded-md bg-green-50 p-4 text-green-800 text-sm">{{ session('status') }}</div>
             @endif
 
@@ -48,6 +52,43 @@
                     <div class="text-lg font-semibold">{{ $dgu->operational_state === 'running' ? 'Работает' : 'Остановлен' }}</div>
                 </div>
             </div>
+
+            @can('controlOperational', $dgu)
+                <div class="bg-white shadow-sm sm:rounded-lg p-6" x-data="{ confirmOpen: false, targetState: 'running' }">
+                    <h3 class="text-lg font-medium text-gray-900 mb-3">Управление (демо)</h3>
+                    <p class="text-sm text-gray-600 mb-4">Смена состояния записывается в аудит.</p>
+                    <div class="flex flex-wrap gap-2">
+                        @if ($dgu->operational_state === 'stopped')
+                            <button type="button"
+                                @click="targetState = 'running'; confirmOpen = true"
+                                class="px-4 py-2 text-sm bg-green-700 text-white rounded-md hover:bg-green-800">
+                                Запустить
+                            </button>
+                        @else
+                            <button type="button"
+                                @click="targetState = 'stopped'; confirmOpen = true"
+                                class="px-4 py-2 text-sm bg-amber-600 text-white rounded-md hover:bg-amber-700">
+                                Остановить
+                            </button>
+                        @endif
+                    </div>
+
+                    <div x-show="confirmOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40" @keydown.escape.window="confirmOpen = false">
+                        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 space-y-4" @click.outside="confirmOpen = false">
+                            <h4 class="text-lg font-semibold text-gray-900">Подтвердите действие</h4>
+                            <p class="text-sm text-gray-600" x-text="targetState === 'running' ? 'Запустить ДГУ (демо)?' : 'Остановить ДГУ (демо)?'"></p>
+                            <div class="flex justify-end gap-2">
+                                <button type="button" @click="confirmOpen = false" class="px-3 py-2 text-sm border rounded-md text-gray-700">Отмена</button>
+                                <form method="post" action="{{ route('dgus.operational.update', $dgu) }}">
+                                    @csrf
+                                    <input type="hidden" name="state" :value="targetState">
+                                    <button type="submit" class="px-3 py-2 text-sm bg-gray-900 text-white rounded-md">Подтвердить</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endcan
 
             <div class="bg-white shadow-sm sm:rounded-lg p-6">
                 <h3 class="text-lg font-medium text-gray-900 mb-4">Текущие параметры</h3>

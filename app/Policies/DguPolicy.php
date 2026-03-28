@@ -32,6 +32,11 @@ class DguPolicy
         return $user->hasRole('admin');
     }
 
+    public function controlOperational(User $user, Dgu $dgu): bool
+    {
+        return $user->hasAnyRole(['admin', 'operator']);
+    }
+
     public function restore(User $user, Dgu $dgu): bool
     {
         return false;

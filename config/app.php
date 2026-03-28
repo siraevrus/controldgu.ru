@@ -123,4 +123,15 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Public registration (Breeze)
+    |--------------------------------------------------------------------------
+    |
+    | When false, /register is not registered — users are created by an admin.
+    |
+    */
+
+    'allow_public_registration' => (bool) env('ALLOW_PUBLIC_REGISTRATION', false),
+
 ];
