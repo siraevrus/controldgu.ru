@@ -6,7 +6,7 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                        <x-application-logo class="text-xs sm:text-sm text-gray-800" />
                     </a>
                 </div>
 
@@ -31,14 +31,8 @@
                         Уведомления
                     </x-nav-link>
                     @if(auth()->user()->hasRole('admin'))
-                    <x-nav-link :href="route('settings.thresholds.index')" :active="request()->routeIs('settings.thresholds.*')">
-                        Пороги
-                    </x-nav-link>
-                    <x-nav-link :href="route('settings.audit.index')" :active="request()->routeIs('settings.audit.*')">
-                        Аудит
-                    </x-nav-link>
-                    <x-nav-link :href="route('settings.logs.index')" :active="request()->routeIs('settings.logs.*')">
-                        Логи
+                    <x-nav-link :href="route('settings.index')" :active="request()->routeIs('settings.index') || request()->routeIs('settings.thresholds.*') || request()->routeIs('settings.audit.*') || request()->routeIs('settings.logs.*')">
+                        Настройки
                     </x-nav-link>
                     <x-nav-link :href="route('settings.users.index')" :active="request()->routeIs('settings.users.*')">
                         Пользователи
@@ -115,14 +109,8 @@
                 Уведомления
             </x-responsive-nav-link>
             @if(auth()->user()->hasRole('admin'))
-            <x-responsive-nav-link :href="route('settings.thresholds.index')" :active="request()->routeIs('settings.thresholds.*')">
-                Пороги
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('settings.audit.index')" :active="request()->routeIs('settings.audit.*')">
-                Аудит
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('settings.logs.index')" :active="request()->routeIs('settings.logs.*')">
-                Логи
+            <x-responsive-nav-link :href="route('settings.index')" :active="request()->routeIs('settings.index') || request()->routeIs('settings.thresholds.*') || request()->routeIs('settings.audit.*') || request()->routeIs('settings.logs.*')">
+                Настройки
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('settings.users.index')" :active="request()->routeIs('settings.users.*')">
                 Пользователи

@@ -4,12 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreInvitedUserRequest;
+use App\Mail\NewUserCredentialsMail;
 use App\Models\User;
 use App\Support\Audit;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
 class UserController extends Controller
@@ -30,29 +30,37 @@ class UserController extends Controller
     {
         $data = $request->validated();
         $roleName = $data['role'];
-        unset($data['role']);
+        $plainPassword = $data['password'];
+        unset($data['role'], $data['password'], $data['password_confirmation']);
 
-        $data['password'] = Hash::make(Str::random(64));
-        $data['email_verified_at'] = null;
+        $data['email_verified_at'] = now();
 
-        $user = User::query()->create($data);
-        $user->syncRoles([$roleName]);
+        try {
+            $user = DB::transaction(function () use ($data, $roleName, $plainPassword) {
+                $data['password'] = $plainPassword;
+                $created = User::query()->create($data);
+                $created->syncRoles([$roleName]);
+
+                Mail::to($created->email)->send(new NewUserCredentialsMail($created, $plainPassword));
+
+                return $created;
+            });
+        } catch (\Throwable $e) {
+            report($e);
+
+            return redirect()
+                ->route('settings.users.create')
+                ->withInput($request->except(['password', 'password_confirmation']))
+                ->withErrors(['email' => 'Не удалось создать пользователя или отправить письмо. Попробуйте снова или проверьте настройки почты.']);
+        }
 
         Audit::record('user.invited', User::class, $user->id, [
             'email' => $user->email,
             'role' => $roleName,
         ]);
 
-        $status = Password::sendResetLink(['email' => $user->email]);
-
-        if ($status !== Password::RESET_LINK_SENT) {
-            return redirect()
-                ->route('settings.users.index')
-                ->withErrors(['email' => __($status)]);
-        }
-
         return redirect()
             ->route('settings.users.index')
-            ->with('status', 'Пользователь создан. На email отправлена ссылка для установки пароля.');
+            ->with('status', 'Пользователь создан. Логин и пароль отправлены на email.');
     }
 }

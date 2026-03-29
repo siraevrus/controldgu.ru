@@ -1,4 +1,4 @@
-# Control DGU — мониторинг ДГУ (демо / MVP)
+# Control DGU — мониторинг ДГУ (MVP)
 
 Laravel 13, SQLite, Blade + Tailwind (Breeze), Spatie Permission. Телеметрия от симулятора по HTTP или командой Artisan.
 
@@ -14,9 +14,9 @@ php artisan serve
 ```
 
 - Вход администратора: `admin@controldgu.local` / `password`
-- Демо-токен приёма телеметрии: `demo-ingest-token` (сидер создаёт ДГУ `AD100C-DEMO-001`)
+- Токен приёма телеметрии (сидер): `telemetry-ingest-token` (ДГУ `AD100C-MSK-7VKM41`)
 - Симуляция пакета: `php artisan dgu:simulate-telemetry`
-- API: `POST /api/v1/dgus/{public_id}/telemetry` с заголовком `Authorization: Bearer demo-ingest-token` и телом `{"values":{...}}`
+- API: `POST /api/v1/dgus/{public_id}/telemetry` с заголовком `Authorization: Bearer telemetry-ingest-token` и телом `{"values":{...}}`
 
 Подробный план этапов: [docs/DEVELOPMENT_PLAN.md](docs/DEVELOPMENT_PLAN.md).
 

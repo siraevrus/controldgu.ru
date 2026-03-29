@@ -10,7 +10,7 @@ use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
 #[Signature('dgu:simulate-telemetry {--dgu= : public_id ДГУ}')]
-#[Description('Отправляет один пакет демо-телеметрии (для локального теста без HTTP)')]
+#[Description('Отправляет один пакет телеметрии (локально, без HTTP)')]
 class SimulateDguTelemetry extends Command
 {
     public function handle(TelemetryIngestService $ingest): int

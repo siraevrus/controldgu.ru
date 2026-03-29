@@ -13,6 +13,7 @@ class AppNotificationController extends Controller
     {
         $notifications = AppNotification::query()
             ->where('user_id', $request->user()->id)
+            ->with('dgu')
             ->latest()
             ->paginate(30);
 

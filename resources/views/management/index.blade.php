@@ -1,11 +1,11 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">Управление</h2>
-        <p class="text-sm text-gray-500 mt-1">Демо: запуск и остановка — на карточке ДГУ. Ниже — заготовки под сценарии ТЗ.</p>
+        <p class="text-sm text-gray-500 mt-1">Запуск и остановка — на карточке ДГУ. Ниже — заготовки под сценарии ТЗ.</p>
     </x-slot>
 
     <div class="py-8">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             <div class="bg-white shadow-sm sm:rounded-lg p-6 space-y-3">
                 <h3 class="text-lg font-medium text-gray-900">Быстрые ссылки</h3>
                 <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">

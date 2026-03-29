@@ -8,7 +8,9 @@ use App\Models\Dgu;
 use App\Models\GlobalThreshold;
 use App\Models\TelemetrySnapshot;
 use App\Support\Audit;
+use App\Support\RussianRegions;
 use App\Support\TelemetryParameters;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -31,8 +33,10 @@ class DguController extends Controller
         if ($serial = $request->string('serial')->toString()) {
             $query->where('serial_number', 'like', '%'.$serial.'%');
         }
-        if ($region = $request->string('region')->toString()) {
-            $query->where('region', 'like', '%'.$region.'%');
+        $region = $request->string('region')->toString();
+        if ($region !== '' && RussianRegions::isAllowed($region)) {
+            $like = addcslashes($region, '%_\\');
+            $query->where('region', 'like', '%'.$like.'%');
         }
         if ($model = $request->string('model_name')->toString()) {
             $query->where('model_name', 'like', '%'.$model.'%');
@@ -54,20 +58,21 @@ class DguController extends Controller
         return view('dgus.index', [
             'dgus' => $dgus,
             'filters' => $request->only(['serial', 'region', 'model_name', 'link']),
+            'russianRegions' => RussianRegions::names(),
             'staleMinutes' => $staleMinutes,
         ]);
     }
 
     public function create(): View
     {
-        return view('dgus.create', ['dgu' => new \App\Models\Dgu(['operational_state' => 'stopped'])]);
+        return view('dgus.create', ['dgu' => new Dgu(['operational_state' => 'stopped'])]);
     }
 
     public function store(StoreDguRequest $request): RedirectResponse
     {
         $plainToken = Str::random(48);
         $data = $request->validated();
-        $data["tags"] = $this->parseTagsFromInput($request->input("tags_input"));
+        $data['tags'] = $this->parseTagsFromInput($request->input('tags_input'));
         $data['telemetry_token_hash'] = Dgu::hashTelemetryToken($plainToken);
         $data['is_manually_disabled'] = $request->boolean('is_manually_disabled');
 
@@ -86,7 +91,7 @@ class DguController extends Controller
             ->with('status', 'dgu-created');
     }
 
-    public function show(Dgu $dgu): View
+    public function show(Request $request, Dgu $dgu): View
     {
         $latest = TelemetrySnapshot::query()
             ->where('dgu_id', $dgu->id)
@@ -100,38 +105,37 @@ class DguController extends Controller
 
         $catalog = TelemetryParameters::catalog();
 
+        $range = $this->resolveTelemetryChartRange($request);
+
         $snapshots = TelemetrySnapshot::query()
             ->where('dgu_id', $dgu->id)
-            ->where('recorded_at', '>=', now()->subHours(24))
+            ->where('recorded_at', '>=', $range['from'])
+            ->where('recorded_at', '<=', $range['to'])
             ->orderBy('recorded_at')
             ->get(['recorded_at', 'values']);
 
         $labels = $snapshots->map(fn (TelemetrySnapshot $s) => $s->recorded_at->timezone(config('app.timezone'))->format('d.m H:i'))->all();
 
-        $chartSlugs = [
-            TelemetryParameters::POWER_CURRENT_KW,
-            TelemetryParameters::VOLTAGE_V,
-            TelemetryParameters::COOLANT_TEMP_C,
-        ];
-        $chartDatasets = [];
-        $colors = ['#2563eb', '#16a34a', '#dc2626'];
+        $palette = ['#2563eb', '#16a34a', '#dc2626', '#ca8a04', '#9333ea', '#0891b2', '#ea580c', '#4f46e5', '#db2777'];
+        $perParameterCharts = [];
         $i = 0;
-        foreach ($chartSlugs as $slug) {
+        foreach (TelemetryParameters::numericSlugs() as $slug) {
+            $meta = $catalog[$slug] ?? ['label' => $slug, 'unit' => ''];
             $data = $snapshots->map(function (TelemetrySnapshot $s) use ($slug) {
                 $v = $s->values[$slug] ?? null;
 
-                return is_numeric($v) ? round((float) $v, 2) : null;
+                return is_numeric($v) ? round((float) $v, 4) : null;
             })->all();
-            if (collect($data)->contains(fn ($v) => $v !== null)) {
-                $chartDatasets[] = [
-                    'label' => $catalog[$slug]['label'] ?? $slug,
-                    'data' => $data,
-                    'borderColor' => $colors[$i % count($colors)],
-                    'tension' => 0.2,
-                    'spanGaps' => true,
-                ];
-                $i++;
-            }
+            $perParameterCharts[$slug] = [
+                'slug' => $slug,
+                'label' => $meta['label'],
+                'unit' => $meta['unit'],
+                'labels' => $labels,
+                'data' => $data,
+                'color' => $palette[$i % count($palette)],
+                'hasData' => collect($data)->contains(fn ($v) => $v !== null),
+            ];
+            $i++;
         }
 
         $staleMinutes = (int) config('telemetry.stale_minutes', 10);
@@ -142,11 +146,81 @@ class DguController extends Controller
             'latest' => $latest,
             'thresholds' => $thresholds,
             'catalog' => $catalog,
-            'chartLabels' => $labels,
-            'chartDatasets' => $chartDatasets,
+            'perParameterCharts' => $perParameterCharts,
+            'chartFromDate' => $range['fromInput'],
+            'chartToDate' => $range['toInput'],
+            'chartPeriodLabel' => $range['label'],
+            'chartRangeDays' => $range['days'],
+            'chartRangeClamped' => $range['rangeClamped'],
+            'chartMaxSpanDays' => $range['maxSpanDays'],
             'staleMinutes' => $staleMinutes,
             'longOfflineHours' => $longOfflineHours,
         ]);
+    }
+
+    /**
+     * @return array{from: Carbon, to: Carbon, fromInput: string, toInput: string, label: string, days: int, rangeClamped: bool, maxSpanDays: int}
+     */
+    protected function resolveTelemetryChartRange(Request $request): array
+    {
+        $tz = config('app.timezone');
+        $now = now($tz);
+        $maxSpanDays = 90;
+
+        $defaultFrom = $now->copy()->subDays(7)->startOfDay();
+        $defaultTo = $now->copy()->endOfDay();
+
+        $fromStr = $request->query('from');
+        $toStr = $request->query('to');
+
+        $validFrom = is_string($fromStr) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $fromStr);
+        $validTo = is_string($toStr) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $toStr);
+
+        $from = $defaultFrom->copy();
+        $to = $defaultTo->copy();
+        $rangeClamped = false;
+
+        try {
+            if ($validFrom && $validTo) {
+                $from = Carbon::parse($fromStr, $tz)->startOfDay();
+                $to = Carbon::parse($toStr, $tz)->endOfDay();
+            } elseif ($validFrom) {
+                $from = Carbon::parse($fromStr, $tz)->startOfDay();
+                $to = $now->copy()->endOfDay();
+            } elseif ($validTo) {
+                $to = Carbon::parse($toStr, $tz)->endOfDay();
+                $from = $to->copy()->subDays(6)->startOfDay();
+            }
+        } catch (\Throwable) {
+            $from = $defaultFrom->copy();
+            $to = $defaultTo->copy();
+        }
+
+        if ($to->gt($now->copy()->endOfDay())) {
+            $to = $now->copy()->endOfDay();
+        }
+
+        if ($from->gt($to)) {
+            $from = $to->copy()->startOfDay();
+        }
+
+        if ($from->diffInDays($to) + 1 > $maxSpanDays) {
+            $from = $to->copy()->subDays($maxSpanDays - 1)->startOfDay();
+            $rangeClamped = true;
+        }
+
+        $days = (int) $from->diffInDays($to) + 1;
+
+        return [
+            'from' => $from,
+            'to' => $to,
+            'fromInput' => $from->format('Y-m-d'),
+            'toInput' => $to->format('Y-m-d'),
+            'label' => $from->format('d.m.Y').' — '.$to->format('d.m.Y'),
+            'days' => $days,
+            'rangeClamped' => $rangeClamped,
+            'maxSpanDays' => $maxSpanDays,
+        ];
     }
 
     public function edit(Dgu $dgu): View
@@ -157,7 +231,7 @@ class DguController extends Controller
     public function update(UpdateDguRequest $request, Dgu $dgu): RedirectResponse
     {
         $data = $request->validated();
-        $data["tags"] = $this->parseTagsFromInput($request->input("tags_input"));
+        $data['tags'] = $this->parseTagsFromInput($request->input('tags_input'));
         $data['is_manually_disabled'] = $request->boolean('is_manually_disabled');
 
         DB::transaction(function () use ($dgu, $data): void {
@@ -181,14 +255,15 @@ class DguController extends Controller
 
         return redirect()->route('dgus.index')->with('status', 'dgu-deleted');
     }
+
     private function parseTagsFromInput(?string $raw): ?array
     {
-        if ($raw === null || trim($raw) === "") {
+        if ($raw === null || trim($raw) === '') {
             return null;
         }
 
-        $parts = preg_split("/\\s*,\\s*/", $raw, -1, PREG_SPLIT_NO_EMPTY);
-        $parts = array_values(array_filter(array_map("trim", $parts)));
+        $parts = preg_split('/\\s*,\\s*/', $raw, -1, PREG_SPLIT_NO_EMPTY);
+        $parts = array_values(array_filter(array_map('trim', $parts)));
 
         return $parts === [] ? null : $parts;
     }

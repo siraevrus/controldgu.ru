@@ -3,7 +3,7 @@
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">Тревога #{{ $alert->id }}</h2>
     </x-slot>
     <div class="py-8">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             <div class="bg-white shadow-sm sm:rounded-lg p-6 text-sm space-y-2">
                 <p><span class="text-gray-500">ДГУ:</span> <a href="{{ route('dgus.show', $alert->dgu) }}" class="text-indigo-600 hover:underline">{{ $alert->dgu->serial_number }}</a></p>
                 <p><span class="text-gray-500">Параметр:</span> {{ $alert->parameter_slug }}</p>

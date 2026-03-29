@@ -40,7 +40,7 @@ class DguOperationalTest extends TestCase
     public function test_admin_can_change_operational_state_and_writes_audit(): void
     {
         $admin = User::query()->where('email', 'admin@controldgu.local')->firstOrFail();
-        $dgu = Dgu::query()->where('serial_number', 'AD100C-DEMO-001')->firstOrFail();
+        $dgu = Dgu::query()->where('serial_number', 'AD100C-MSK-7VKM41')->firstOrFail();
         $this->assertSame('running', $dgu->operational_state);
 
         $this->actingAs($admin);

@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Dgu;
 use App\Models\GlobalThreshold;
 use App\Models\User;
 use App\Support\TelemetryParameters;
@@ -58,24 +57,8 @@ class DatabaseSeeder extends Seeder
             );
         }
 
-        $plainToken = 'demo-ingest-token';
-
-        Dgu::query()->firstOrCreate(
-            ['serial_number' => 'AD100C-DEMO-001'],
-            [
-                'name' => 'АД100С демо',
-                'address' => 'Москва, демо-площадка',
-                'latitude' => 55.751244,
-                'longitude' => 37.618423,
-                'responsible_name' => 'Иванов И.И.',
-                'contact_phone' => '+79990001122',
-                'nominal_power_kw' => 100,
-                'model_name' => 'АД100С-Т400-50-1РPШ-G1-О0-У3',
-                'region' => 'Москва',
-                'tags' => ['demo'],
-                'operational_state' => 'running',
-                'telemetry_token_hash' => Dgu::hashTelemetryToken($plainToken),
-            ]
-        );
+        $this->call(DguTestDataSeeder::class);
+        $this->call(AlertWeekSampleDataSeeder::class);
+        $this->call(NotificationSampleDataSeeder::class);
     }
 }

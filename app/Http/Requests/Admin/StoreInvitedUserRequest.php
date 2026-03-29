@@ -25,6 +25,7 @@ class StoreInvitedUserRequest extends FormRequest
             'phone' => ['nullable', 'string', 'max:64'],
             'job_title' => ['nullable', 'string', 'max:255'],
             'role' => ['required', 'string', Rule::in(['admin', 'operator'])],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
         ];
     }
 }

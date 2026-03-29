@@ -7,20 +7,62 @@ use App\Models\Alert;
 use App\Models\AlertEvent;
 use App\Support\Audit;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class AlertController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
+        $tz = config('app.timezone', 'UTC');
+        $now = Carbon::now($tz);
+
+        if ($request->filled('from') || $request->filled('to')) {
+            $fromRaw = $request->date('from');
+            $toRaw = $request->date('to');
+            if ($fromRaw && $toRaw) {
+                $rangeStart = $fromRaw->copy()->timezone($tz)->startOfDay();
+                $rangeEnd = $toRaw->copy()->timezone($tz)->endOfDay();
+            } elseif ($fromRaw) {
+                $rangeStart = $fromRaw->copy()->timezone($tz)->startOfDay();
+                $rangeEnd = $now->copy()->endOfDay();
+            } else {
+                $rangeStart = $now->copy()->subDays(9)->startOfDay();
+                $rangeEnd = $toRaw->copy()->timezone($tz)->endOfDay();
+            }
+            if ($rangeStart->greaterThan($rangeEnd)) {
+                [$rangeStart, $rangeEnd] = [$rangeEnd->copy()->startOfDay(), $rangeStart->copy()->endOfDay()];
+            }
+            if ($rangeStart->isSameDay($rangeEnd)) {
+                $filterDescription = 'За день '.$rangeStart->translatedFormat('d.m.Y');
+            } else {
+                $filterDescription = 'С '.$rangeStart->translatedFormat('d.m.Y').' по '.$rangeEnd->translatedFormat('d.m.Y');
+            }
+            $filterFrom = $rangeStart->format('Y-m-d');
+            $filterTo = $rangeEnd->format('Y-m-d');
+        } else {
+            $rangeStart = $now->copy()->subDays(9)->startOfDay();
+            $rangeEnd = $now->copy()->endOfDay();
+            $filterDescription = 'Последние 10 дней';
+            $filterFrom = $rangeStart->format('Y-m-d');
+            $filterTo = $rangeEnd->format('Y-m-d');
+        }
+
         $alerts = Alert::query()
             ->with(['dgu'])
-            ->where('status', Alert::STATUS_OPEN)
+            ->whereBetween('triggered_at', [$rangeStart, $rangeEnd])
             ->latest('triggered_at')
-            ->paginate(20);
+            ->paginate(20)
+            ->withQueryString();
 
-        return view('alerts.index', compact('alerts'));
+        return view('alerts.index', compact(
+            'alerts',
+            'filterDescription',
+            'filterFrom',
+            'filterTo',
+        ));
     }
 
     public function show(Alert $alert): View

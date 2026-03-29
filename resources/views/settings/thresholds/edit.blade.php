@@ -1,10 +1,13 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Порог: {{ $label }}</h2>
+        <div>
+            <a href="{{ route('settings.index') }}" class="text-sm text-indigo-600 hover:underline">← Настройки</a>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight mt-1">Порог: {{ $label }}</h2>
+        </div>
     </x-slot>
     <div class="py-8">
-        <div class="max-w-xl mx-auto sm:px-6 lg:px-8">
-            <form method="post" action="{{ route('settings.thresholds.update', $threshold) }}" class="bg-white shadow-sm sm:rounded-lg p-6 space-y-4 text-sm">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <form method="post" action="{{ route('settings.thresholds.update', $threshold) }}" class="max-w-3xl mx-auto bg-white shadow-sm sm:rounded-lg p-6 space-y-4 text-sm">
                 @csrf
                 @method('patch')
                 <div>

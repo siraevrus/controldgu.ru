@@ -31,6 +31,7 @@ class SettingsPagesTest extends TestCase
         $admin = User::query()->where('email', 'admin@controldgu.local')->firstOrFail();
         $this->actingAs($admin);
 
+        $this->get(route('settings.index'))->assertOk();
         $this->get(route('settings.audit.index'))->assertOk();
         $this->get(route('settings.logs.index'))->assertOk();
         $this->get(route('settings.users.index'))->assertOk();

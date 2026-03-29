@@ -33,7 +33,7 @@
         </div>
         <div>
             <x-input-label for="contact_phone" value="Контактный телефон" />
-            <x-text-input id="contact_phone" name="contact_phone" type="text" class="mt-1 block w-full" :value="old('contact_phone', $dgu->contact_phone ?? '')" />
+            <x-text-input id="contact_phone" name="contact_phone" type="text" class="mt-1 block w-full" autocomplete="tel" placeholder="+7 999-123-45-67" x-phone-mask :value="old('contact_phone', $dgu->contact_phone ?? '')" />
         </div>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -68,7 +68,7 @@
         <x-input-label for="is_manually_disabled_cb" value="Ручное отключение на карте / учёте" />
     </div>
     <div>
-        <x-input-label for="operational_state" value="Состояние (демо)" />
+        <x-input-label for="operational_state" value="Состояние" />
         <select id="operational_state" name="operational_state" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
             <option value="running" @selected(old('operational_state', $dgu->operational_state ?? 'stopped') === 'running')>Работает</option>
             <option value="stopped" @selected(old('operational_state', $dgu->operational_state ?? 'stopped') === 'stopped')>Остановлен</option>

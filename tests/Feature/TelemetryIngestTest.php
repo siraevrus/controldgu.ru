@@ -24,7 +24,7 @@ class TelemetryIngestTest extends TestCase
     {
         $dgu = Dgu::query()->firstOrFail();
 
-        $response = $this->withToken('demo-ingest-token')->postJson("/api/v1/dgus/{$dgu->public_id}/telemetry", [
+        $response = $this->withToken('telemetry-ingest-token')->postJson("/api/v1/dgus/{$dgu->public_id}/telemetry", [
             'values' => [
                 TelemetryParameters::POWER_CURRENT_KW => 80,
                 TelemetryParameters::VOLTAGE_V => 400,
@@ -52,7 +52,7 @@ class TelemetryIngestTest extends TestCase
 
         $dgu = Dgu::query()->firstOrFail();
 
-        $response = $this->withToken('demo-ingest-token')->postJson("/api/v1/dgus/{$dgu->public_id}/telemetry", [
+        $response = $this->withToken('telemetry-ingest-token')->postJson("/api/v1/dgus/{$dgu->public_id}/telemetry", [
             'values' => [
                 TelemetryParameters::VOLTAGE_V => 500,
             ],

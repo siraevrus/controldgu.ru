@@ -11,6 +11,7 @@ use App\Http\Controllers\GlobalThresholdController;
 use App\Http\Controllers\ManagementController;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SystemLogController;
 use Illuminate\Support\Facades\Route;
 
@@ -40,6 +41,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/notifications/{notification}/read', [AppNotificationController::class, 'read'])->name('notifications.read');
 
     Route::middleware('role:admin')->prefix('settings')->name('settings.')->group(function () {
+        Route::get('/', [SettingsController::class, 'index'])->name('index');
+
         Route::get('/thresholds', [GlobalThresholdController::class, 'index'])->name('thresholds.index');
         Route::get('/thresholds/{threshold}/edit', [GlobalThresholdController::class, 'edit'])->name('thresholds.edit');
         Route::patch('/thresholds/{threshold}', [GlobalThresholdController::class, 'update'])->name('thresholds.update');
