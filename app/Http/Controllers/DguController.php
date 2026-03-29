@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreDguRequest;
 use App\Http\Requests\UpdateDguRequest;
+use App\Models\AuditLog;
 use App\Models\Dgu;
 use App\Models\GlobalThreshold;
 use App\Models\TelemetrySnapshot;
@@ -141,6 +142,14 @@ class DguController extends Controller
         $staleMinutes = (int) config('telemetry.stale_minutes', 10);
         $longOfflineHours = (int) config('telemetry.long_offline_hours', 12);
 
+        $operationalAuditHistory = AuditLog::query()
+            ->where('auditable_type', Dgu::class)
+            ->where('auditable_id', $dgu->id)
+            ->whereIn('action', ['dgu.operational.start', 'dgu.operational.stop'])
+            ->with('user')
+            ->orderByDesc('created_at')
+            ->get();
+
         return view('dgus.show', [
             'dgu' => $dgu,
             'latest' => $latest,
@@ -155,6 +164,7 @@ class DguController extends Controller
             'chartMaxSpanDays' => $range['maxSpanDays'],
             'staleMinutes' => $staleMinutes,
             'longOfflineHours' => $longOfflineHours,
+            'operationalAuditHistory' => $operationalAuditHistory,
         ]);
     }
 
@@ -230,13 +240,30 @@ class DguController extends Controller
 
     public function update(UpdateDguRequest $request, Dgu $dgu): RedirectResponse
     {
+        $previousOperational = $dgu->operational_state;
         $data = $request->validated();
         $data['tags'] = $this->parseTagsFromInput($request->input('tags_input'));
         $data['is_manually_disabled'] = $request->boolean('is_manually_disabled');
 
+        $newOperational = $data['operational_state'];
+        $operationalChanged = $newOperational !== $previousOperational;
+
+        if ($operationalChanged) {
+            $data['operational_state_changed_at'] = now();
+        }
+
         DB::transaction(function () use ($dgu, $data): void {
             $dgu->update($data);
         });
+
+        if ($operationalChanged) {
+            $action = $newOperational === 'running' ? 'dgu.operational.start' : 'dgu.operational.stop';
+            Audit::record($action, Dgu::class, $dgu->id, [
+                'serial_number' => $dgu->serial_number,
+                'previous_state' => $previousOperational,
+                'new_state' => $newOperational,
+            ]);
+        }
 
         Audit::record('dgu.updated', Dgu::class, $dgu->id, [
             'serial_number' => $dgu->serial_number,

@@ -54,24 +54,99 @@
             </div>
 
             @can('controlOperational', $dgu)
-                <div class="bg-white shadow-sm sm:rounded-lg p-6" x-data="{ confirmOpen: false, targetState: 'running' }">
-                    <h3 class="text-lg font-medium text-gray-900 mb-3">Управление</h3>
-                    <p class="text-sm text-gray-600 mb-4">Смена состояния записывается в аудит.</p>
-                    <div class="flex flex-wrap gap-2">
-                        @if ($dgu->operational_state === 'stopped')
-                            <button type="button"
-                                @click="targetState = 'running'; confirmOpen = true"
-                                class="px-4 py-2 text-sm bg-green-700 text-white rounded-md hover:bg-green-800">
-                                Запустить
-                            </button>
-                        @else
-                            <button type="button"
-                                @click="targetState = 'stopped'; confirmOpen = true"
-                                class="px-4 py-2 text-sm bg-amber-600 text-white rounded-md hover:bg-amber-700">
-                                Остановить
-                            </button>
-                        @endif
+                @php
+                    $opChangedAt = $dgu->operational_state_changed_at ?? $dgu->updated_at;
+                    $opTz = config('app.timezone');
+                    $running = $dgu->operational_state === 'running';
+                @endphp
+                <div class="bg-white shadow-sm sm:rounded-lg p-6" x-data="{ confirmOpen: false, targetState: 'running', historyOpen: false }">
+                    <div class="mb-3 flex items-center justify-between gap-4">
+                        <h3 class="text-lg font-medium text-gray-900">Управление</h3>
+                        <div class="shrink-0">
+                            @if ($dgu->operational_state === 'stopped')
+                                <button type="button"
+                                    @click="targetState = 'running'; confirmOpen = true"
+                                    class="px-4 py-2 text-sm bg-green-700 text-white rounded-md hover:bg-green-800">
+                                    Запустить
+                                </button>
+                            @else
+                                <button type="button"
+                                    @click="targetState = 'stopped'; confirmOpen = true"
+                                    class="px-4 py-2 text-sm bg-amber-600 text-white rounded-md hover:bg-amber-700">
+                                    Остановить
+                                </button>
+                            @endif
+                        </div>
                     </div>
+                    <p class="text-sm text-gray-600 mb-4">Каждое переключение запуска и остановки сохраняется в журнале ниже.</p>
+                    <dl class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5 text-sm border-b border-gray-100 pb-5">
+                        <div>
+                            <dt class="text-gray-500 mb-1">Статус</dt>
+                            <dd class="font-semibold {{ $running ? 'text-green-700' : 'text-gray-700' }}">{{ $running ? 'Работает' : 'Остановлен' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-gray-500 mb-1">Время последнего переключения</dt>
+                            <dd class="font-medium text-gray-900 tabular-nums">{{ $opChangedAt->timezone($opTz)->format('d.m.Y H:i:s') }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-gray-500 mb-1">В текущем состоянии</dt>
+                            <dd class="font-medium text-gray-900">{{ $opChangedAt->diffForHumans(null, true, false, 4) }}</dd>
+                        </div>
+                    </dl>
+
+                    @if ($operationalAuditHistory->isNotEmpty())
+                        <div class="mb-5 border-t border-gray-100 pt-5">
+                            <h4 class="text-sm font-medium text-gray-900 mb-3">Журнал запусков и остановок</h4>
+                            <div class="text-sm overflow-x-auto">
+                                <table class="min-w-full table-fixed border-collapse">
+                                    <thead>
+                                        <tr class="border-b border-gray-200 text-left text-xs font-medium text-gray-500">
+                                            <th scope="col" class="w-[28%] py-2 pr-3 font-medium">Время</th>
+                                            <th scope="col" class="w-[44%] py-2 px-3 font-medium">Событие</th>
+                                            <th scope="col" class="w-[28%] py-2 pl-3 font-medium">Пользователь</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        @foreach ($operationalAuditHistory as $i => $log)
+                                            @php
+                                                $props = $log->properties ?? [];
+                                                $prev = $props['previous_state'] ?? null;
+                                                $new = $props['new_state'] ?? null;
+                                                $stateLabel = static fn (?string $s) => match ($s) {
+                                                    'running' => 'работа',
+                                                    'stopped' => 'остановка',
+                                                    default => $s ?? '—',
+                                                };
+                                                $userEmail = $log->user?->email;
+                                            @endphp
+                                            <tr class="text-gray-800 align-top @if ($i >= 10) hidden @endif"
+                                                :class="{ 'hidden': !historyOpen && {{ $i >= 10 ? 'true' : 'false' }} }">
+                                                <td class="py-2.5 pr-3">
+                                                    <time class="tabular-nums text-gray-600 whitespace-nowrap" datetime="{{ $log->created_at->toIso8601String() }}">{{ $log->created_at->timezone($opTz)->format('d.m.Y H:i:s') }}</time>
+                                                </td>
+                                                <td class="py-2.5 px-3 min-w-0">
+                                                    <span class="font-medium block">{{ $log->action === 'dgu.operational.start' ? 'Запуск' : 'Остановка' }}</span>
+                                                    @if ($prev !== null && $new !== null)
+                                                        <span class="text-gray-600 text-xs leading-snug block mt-0.5">{{ $stateLabel($prev) }} → {{ $stateLabel($new) }}</span>
+                                                    @endif
+                                                </td>
+                                                <td class="py-2.5 pl-3 min-w-0 max-w-0">
+                                                    <span class="block truncate text-gray-500" title="{{ $userEmail ?? '' }}">{{ $userEmail ?? '—' }}</span>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            @if ($operationalAuditHistory->count() > 10)
+                                <button type="button" @click="historyOpen = !historyOpen"
+                                    class="mt-3 text-sm font-medium text-indigo-600 hover:text-indigo-800">
+                                    <span x-show="!historyOpen">Показать ещё {{ $operationalAuditHistory->count() - 10 }}</span>
+                                    <span x-show="historyOpen" x-cloak>Свернуть</span>
+                                </button>
+                            @endif
+                        </div>
+                    @endif
 
                     <div x-show="confirmOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40" @keydown.escape.window="confirmOpen = false">
                         <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 space-y-4" @click.outside="confirmOpen = false">

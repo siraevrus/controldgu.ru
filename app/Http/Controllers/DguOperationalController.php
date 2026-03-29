@@ -22,7 +22,10 @@ class DguOperationalController extends Controller
         }
 
         $previous = $dgu->operational_state;
-        $dgu->update(['operational_state' => $state]);
+        $dgu->update([
+            'operational_state' => $state,
+            'operational_state_changed_at' => now(),
+        ]);
 
         $action = $state === 'running' ? 'dgu.operational.start' : 'dgu.operational.stop';
         Audit::record($action, Dgu::class, $dgu->id, [

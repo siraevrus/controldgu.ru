@@ -21,9 +21,6 @@
                     <x-nav-link :href="route('map.index')" :active="request()->routeIs('map.*')">
                         Карта
                     </x-nav-link>
-                    <x-nav-link :href="route('management.index')" :active="request()->routeIs('management.*')">
-                        Управление
-                    </x-nav-link>
                     <x-nav-link :href="route('alerts.index')" :active="request()->routeIs('alerts.*')">
                         Тревоги
                     </x-nav-link>
@@ -98,9 +95,6 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('map.index')" :active="request()->routeIs('map.*')">
                 Карта
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('management.index')" :active="request()->routeIs('management.*')">
-                Управление
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('alerts.index')" :active="request()->routeIs('alerts.*')">
                 Тревоги

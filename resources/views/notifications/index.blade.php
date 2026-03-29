@@ -23,7 +23,7 @@
                     <thead class="bg-gray-50 text-gray-600">
                         <tr>
                             <th class="px-4 py-2 text-left font-medium">Заголовок</th>
-                            <th class="px-4 py-2 text-left font-medium">Текст</th>
+                            <th class="px-4 py-2 text-left font-medium">Площадка</th>
                             <th class="px-4 py-2 text-left font-medium whitespace-nowrap">Время</th>
                             <th class="px-4 py-2 text-right font-medium w-[1%] whitespace-nowrap">Действие</th>
                         </tr>
@@ -32,16 +32,18 @@
                         @forelse ($notifications as $n)
                             <tr class="border-t border-gray-100 {{ $n->read_at ? 'opacity-70 bg-gray-50/50' : 'border-l-4 border-l-indigo-500 bg-white' }}">
                                 <td class="px-4 py-3 align-middle font-medium {{ $n->read_at ? 'text-gray-900' : 'text-red-600' }}">{{ $n->title }}</td>
-                                <td class="px-4 py-3 align-middle text-gray-600">{{ $n->body ?? '—' }}</td>
+                                <td class="px-4 py-3 align-middle text-gray-600">
+                                    @if ($n->dgu)
+                                        <a href="{{ route('dgus.show', $n->dgu) }}" class="text-indigo-600 hover:underline">
+                                            {{ $n->body ?? ($n->dgu->name ?? $n->dgu->serial_number) }}
+                                        </a>
+                                    @else
+                                        {{ $n->body ?? '—' }}
+                                    @endif
+                                </td>
                                 <td class="px-4 py-3 align-middle text-gray-500 whitespace-nowrap tabular-nums">{{ $n->created_at->format('Y-m-d H:i:s') }}</td>
                                 <td class="px-4 py-3 align-middle text-right">
                                     <div class="inline-flex flex-wrap items-center justify-end gap-2">
-                                        @if ($n->dgu)
-                                            <a href="{{ route('dgus.show', $n->dgu) }}"
-                                                class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50">
-                                                К ДГУ
-                                            </a>
-                                        @endif
                                         @if (isset($n->data['alert_id']))
                                             <a href="{{ route('alerts.show', $n->data['alert_id']) }}"
                                                 class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">

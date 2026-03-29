@@ -26,15 +26,6 @@
                     <div class="text-3xl font-semibold text-red-700">{{ $kpiOpenAlerts }}</div>
                 </div>
             </div>
-
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-700 space-y-2">
-                    <p class="font-medium">Приём телеметрии</p>
-                    <p class="text-sm">Симулятор: <code class="bg-gray-100 px-1 rounded">php artisan dgu:simulate-telemetry</code></p>
-                    <p class="text-sm">HTTP: <code class="bg-gray-100 px-1 rounded">POST /api/v1/dgus/{public_id}/telemetry</code> с Bearer <code class="bg-gray-100 px-1 rounded">telemetry-ingest-token</code></p>
-                    <p class="text-xs text-gray-500">Логин админа после <code>php artisan migrate --seed</code>: admin@controldgu.local / password</p>
-                </div>
-            </div>
         </div>
     </div>
 </x-app-layout>

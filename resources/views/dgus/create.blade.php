@@ -4,7 +4,7 @@
     </x-slot>
     <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <form method="post" action="{{ route('dgus.store') }}" class="max-w-3xl mx-auto bg-white shadow-sm sm:rounded-lg p-6 space-y-6">
+            <form method="post" action="{{ route('dgus.store') }}" class="w-full bg-white shadow-sm sm:rounded-lg p-6 space-y-6">
                 @csrf
                 @include('dgus._form')
                 <div class="flex gap-3">

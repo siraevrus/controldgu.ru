@@ -28,6 +28,7 @@ class Dgu extends Model
         'tags',
         'is_manually_disabled',
         'operational_state',
+        'operational_state_changed_at',
         'telemetry_token_hash',
         'last_telemetry_at',
     ];
@@ -38,6 +39,7 @@ class Dgu extends Model
             'tags' => 'array',
             'is_manually_disabled' => 'boolean',
             'last_telemetry_at' => 'datetime',
+            'operational_state_changed_at' => 'datetime',
             'nominal_power_kw' => 'decimal:2',
             'latitude' => 'decimal:7',
             'longitude' => 'decimal:7',
@@ -48,6 +50,9 @@ class Dgu extends Model
     {
         static::creating(function (Dgu $dgu): void {
             $dgu->public_id ??= (string) Str::uuid();
+            if ($dgu->operational_state_changed_at === null) {
+                $dgu->operational_state_changed_at = now();
+            }
         });
     }
 
