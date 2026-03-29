@@ -10,7 +10,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 
 /**
- * Тревоги с датой срабатывания за последние 10 календарных дней (часть закрыта).
+ * Тревоги с датой срабатывания за последние 14 календарных дней (часть закрыта).
  */
 class AlertWeekSampleDataSeeder extends Seeder
 {
@@ -30,7 +30,16 @@ class AlertWeekSampleDataSeeder extends Seeder
         $today = Carbon::now($tz)->startOfDay();
 
         $rows = [
-            // день -6 … 0 и ещё -9 … -7 в конце массива (порядок важен для i % 8 и теста ingest)
+            // дни -13 … -10 (расширение до 14 суток)
+            [-13, 9, 10, 'voltage_v', 375.0, false],
+            [-13, 14, 30, 'coolant_temp_c', 94.0, true],
+            [-12, 8, 0, 'current_a', 195.0, true],
+            [-12, 15, 45, 'fuel_level_pct', 12.0, false],
+            [-11, 10, 20, 'frequency_hz', 49.4, false],
+            [-11, 17, 0, 'oil_pressure_bar', 3.2, true],
+            [-10, 9, 30, 'power_current_kw', 95.0, true],
+            [-10, 16, 15, 'engine_rpm', 1490.0, false],
+            // день -6 … 0 и ещё -9 … -7 (порядок важен для i % 8 и теста ingest)
             [-6, 8, 15, 'coolant_temp_c', 102.0, true],
             [-6, 11, 40, 'voltage_v', 435.0, false],
             [-5, 9, 5, 'oil_pressure_bar', 2.1, true],

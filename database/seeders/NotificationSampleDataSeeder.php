@@ -11,7 +11,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
- * In-app уведомления за последние 5 календарных дней (для /notifications).
+ * In-app уведомления за последние ~14 календарных дней (для /notifications).
  */
 class NotificationSampleDataSeeder extends Seeder
 {
@@ -37,6 +37,15 @@ class NotificationSampleDataSeeder extends Seeder
         $today = Carbon::now($tz)->startOfDay();
 
         $templates = [
+            [-13, 8, 10, 'Открыта тревога', null, 'alert_opened', true, 0, 0],
+            [-12, 11, 20, 'Открыта тревога', null, 'alert_opened', false, 1, 1],
+            [-11, 9, 0, 'Система', 'Плановая проверка каналов связи.', 'system_info', true, null, null],
+            [-10, 14, 30, 'Открыта тревога', null, 'alert_opened', true, 2, 2],
+            [-9, 7, 45, 'Открыта тревога', null, 'alert_opened', false, 3, 3],
+            [-8, 16, 15, 'Открыта тревога', null, 'alert_opened', true, 4, 4],
+            [-7, 10, 0, 'Открыта тревога', null, 'alert_opened', false, 5, 5],
+            [-6, 12, 30, 'Система', 'Резервное копирование конфигурации.', 'system_check', true, null, null],
+            [-5, 8, 20, 'Открыта тревога', null, 'alert_opened', true, 6, 6],
             [-4, 8, 5, 'Открыта тревога', null, 'alert_opened', true, 0, 0],
             [-4, 11, 40, 'Открыта тревога', null, 'alert_opened', false, 1, 1],
             [-4, 16, 20, 'Система', 'Проверка почтового канала завершена.', 'system_check', true, null, null],
