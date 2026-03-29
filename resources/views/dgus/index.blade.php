@@ -51,11 +51,12 @@
             <div class="bg-white shadow-sm sm:rounded-lg overflow-x-auto w-full">
                 <table class="w-full min-w-full table-fixed text-sm text-left">
                     <colgroup>
+                        <col style="width: 18%">
                         <col style="width: 22%">
-                        <col style="width: 28%">
-                        <col style="width: 20%">
-                        <col style="width: 20%">
-                        <col style="width: 10%">
+                        <col style="width: 16%">
+                        <col style="width: 12%">
+                        <col style="width: 18%">
+                        <col style="width: 14%">
                     </colgroup>
                     <thead class="bg-gray-50 text-gray-600">
                         <tr>
@@ -63,6 +64,7 @@
                             <th class="px-4 py-2">Название</th>
                             <th class="px-4 py-2">Регион</th>
                             <th class="px-4 py-2">Связь</th>
+                            <th class="px-4 py-2">Активность</th>
                             <th class="px-4 py-2"></th>
                         </tr>
                     </thead>
@@ -82,12 +84,19 @@
                                         <span class="text-amber-700">Нет / устарела</span>
                                     @endif
                                 </td>
+                                <td class="px-4 py-2 align-top whitespace-nowrap text-gray-700" title="{{ $dgu->last_telemetry_at?->toIso8601String() }}">
+                                    @if ($dgu->last_telemetry_at)
+                                        {{ $dgu->last_telemetry_at->timezone(config('app.timezone'))->locale(app()->getLocale())->translatedFormat('j M Y, H:i') }}
+                                    @else
+                                        —
+                                    @endif
+                                </td>
                                 <td class="px-4 py-2 text-right align-top whitespace-nowrap">
                                     <a href="{{ route('dgus.show', $dgu) }}" class="text-indigo-600 hover:underline">Открыть</a>
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="5" class="px-4 py-6 text-center text-gray-500">Нет записей</td></tr>
+                            <tr><td colspan="6" class="px-4 py-6 text-center text-gray-500">Нет записей</td></tr>
                         @endforelse
                     </tbody>
                 </table>
