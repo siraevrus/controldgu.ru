@@ -25,19 +25,22 @@
     </head>
     <body @if($vite) class="min-h-screen bg-gray-50 text-gray-900 antialiased flex flex-col items-center justify-center p-6" @endif>
             @if (Route::has('login'))
-            <header @if($vite) class="w-full max-w-md mb-8 flex justify-end" @else class="nav" @endif>
-                <nav class="flex items-center gap-4 text-sm">
-                    @auth
-                        <a href="{{ url('/dashboard') }}" @if($vite) class="text-indigo-600 hover:underline" @endif>{{ __('Dashboard') }}</a>
-                    @else
-                        <a href="{{ route('login') }}" @if($vite) class="text-indigo-600 hover:underline" @endif>{{ __('Log in') }}</a>
-                        @if (config('app.allow_public_registration'))
-                            <a href="{{ route('register') }}" @if($vite) class="text-indigo-600 hover:underline" @endif>{{ __('Register') }}</a>
-                        @endif
-                    @endauth
-                </nav>
-        </header>
-        @endif
+                @auth
+                    <header @if($vite) class="w-full max-w-md mb-8 flex justify-end" @else class="nav" @endif>
+                        <nav class="flex items-center gap-4 text-sm">
+                            <a href="{{ url('/dashboard') }}" @if($vite) class="text-indigo-600 hover:underline" @endif>{{ __('Dashboard') }}</a>
+                        </nav>
+                    </header>
+                @else
+                    @if (config('app.allow_public_registration'))
+                        <header @if($vite) class="w-full max-w-md mb-8 flex justify-end" @else class="nav" @endif>
+                            <nav class="flex items-center gap-4 text-sm">
+                                <a href="{{ route('register') }}" @if($vite) class="text-indigo-600 hover:underline" @endif>{{ __('Register') }}</a>
+                            </nav>
+                        </header>
+                    @endif
+                @endauth
+            @endif
 
         <main @if($vite) class="w-full max-w-md rounded-lg border border-gray-200 bg-white p-8 shadow-sm text-center" @else class="card" @endif>
             <h1 @if($vite) class="text-2xl font-semibold text-gray-900" @endif>{{ config('app.name', 'Контроль ДГУ') }}</h1>
