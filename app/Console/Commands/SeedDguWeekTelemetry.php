@@ -11,8 +11,8 @@ use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
-#[Signature('dgu:seed-week-telemetry {--keep : Не удалять существующие снимки перед заливкой}')]
-#[Description('Заполняет за последние 7 суток почасовые снимки телеметрии для всех ДГУ (разнообразные значения в пределах порогов)')]
+#[Signature('dgu:seed-week-telemetry {--keep : Не удалять существующие снимки перед заливкой} {--days=7 : Число суток назад от текущего часа}')]
+#[Description('Почасовые снимки телеметрии за N суток для всех ДГУ (разнообразные значения в пределах порогов)')]
 class SeedDguWeekTelemetry extends Command
 {
     public function handle(): int
@@ -29,7 +29,8 @@ class SeedDguWeekTelemetry extends Command
             return self::FAILURE;
         }
 
-        $start = now()->subWeek()->startOfHour();
+        $days = max(1, min(90, (int) $this->option('days')));
+        $start = now()->subDays($days)->startOfHour();
         $end = now()->startOfHour();
 
         $totalRows = 0;
@@ -70,7 +71,7 @@ class SeedDguWeekTelemetry extends Command
 
         $this->syncLastTelemetryAt();
 
-        $this->info("Записано снимков: {$totalRows} для {$dgus->count()} ДГУ (период с {$start->toDateTimeString()} по {$end->toDateTimeString()}, шаг 1 ч, часть точек пропущена как «нет связи»).");
+        $this->info("Записано снимков: {$totalRows} для {$dgus->count()} ДГУ ({$days} сут., с {$start->toDateTimeString()} по {$end->toDateTimeString()}, шаг 1 ч, часть точек пропущена как «нет связи»).");
 
         return self::SUCCESS;
     }

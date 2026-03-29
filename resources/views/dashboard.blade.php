@@ -48,7 +48,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                     <div class="text-sm text-gray-500">Без координат</div>
                     <div class="text-3xl font-semibold text-gray-900">{{ $kpiWithoutCoords }}</div>
@@ -64,14 +64,6 @@
                     <div class="text-sm text-gray-500">Снимков за час</div>
                     <div class="text-3xl font-semibold text-gray-900">{{ $kpiSnapshotsLastHour }}</div>
                     <div class="text-xs text-gray-400 mt-1">По всем ДГУ</div>
-                </div>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <div class="text-sm text-gray-500">Последний пакет по парку</div>
-                    @if ($lastTelemetryFleet)
-                        <div class="text-lg font-semibold text-gray-900 tabular-nums mt-1">{{ $lastTelemetryFleet->format('d.m.Y H:i:s') }}</div>
-                    @else
-                        <div class="text-lg font-semibold text-gray-400 mt-1">Нет данных</div>
-                    @endif
                 </div>
             </div>
 

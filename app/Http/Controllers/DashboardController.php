@@ -7,7 +7,6 @@ use App\Models\AppNotification;
 use App\Models\AuditLog;
 use App\Models\Dgu;
 use App\Models\TelemetrySnapshot;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -48,11 +47,6 @@ class DashboardController extends Controller
         $snapshotsLastHour = TelemetrySnapshot::query()
             ->where('recorded_at', '>=', now()->subHour())
             ->count();
-
-        $lastTelemetryRaw = Dgu::query()->max('last_telemetry_at');
-        $lastTelemetryFleet = $lastTelemetryRaw
-            ? Carbon::parse($lastTelemetryRaw)->timezone($tz)
-            : null;
 
         $regionsTop = Dgu::query()
             ->selectRaw('region, COUNT(*) as c')
@@ -98,7 +92,6 @@ class DashboardController extends Controller
             'kpiWithoutCoords' => $withoutCoords,
             'kpiAlertsLast24h' => $alertsLast24h,
             'kpiSnapshotsLastHour' => $snapshotsLastHour,
-            'lastTelemetryFleet' => $lastTelemetryFleet,
             'regionsTop' => $regionsTop,
             'recentOpenAlerts' => $recentOpenAlerts,
             'unreadNotifications' => $unreadNotifications,
