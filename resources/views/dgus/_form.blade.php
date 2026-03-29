@@ -47,7 +47,20 @@
         </div>
         <div>
             <x-input-label for="region" value="Регион" />
-            <x-text-input id="region" name="region" type="text" class="mt-1 block w-full" :value="old('region', $dgu->region ?? '')" />
+            @php
+                $regions = $russianRegions ?? \App\Support\RussianRegions::names();
+                $regionVal = old('region', $dgu->region ?? '');
+            @endphp
+            <select id="region" name="region" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                <option value="" @selected($regionVal === '' || $regionVal === null)>— Не выбран —</option>
+                @foreach ($regions as $regionName)
+                    <option value="{{ $regionName }}" @selected($regionVal === $regionName)>{{ $regionName }}</option>
+                @endforeach
+                @if (is_string($regionVal) && $regionVal !== '' && ! in_array($regionVal, $regions, true))
+                    <option value="{{ $regionVal }}" selected>{{ $regionVal }} (текущее значение)</option>
+                @endif
+            </select>
+            <x-input-error :messages="$errors->get('region')" class="mt-2" />
         </div>
     </div>
     <div>

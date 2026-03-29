@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Dgu;
+use App\Support\RussianRegions;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -12,6 +13,13 @@ class StoreDguRequest extends FormRequest
     public function authorize(): bool
     {
         return $this->user()?->can('create', Dgu::class) ?? false;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('region') && $this->input('region') === '') {
+            $this->merge(['region' => null]);
+        }
     }
 
     /**
@@ -29,7 +37,7 @@ class StoreDguRequest extends FormRequest
             'contact_phone' => ['nullable', 'string', 'max:64'],
             'nominal_power_kw' => ['nullable', 'numeric', 'min:0', 'max:10000'],
             'model_name' => ['nullable', 'string', 'max:255'],
-            'region' => ['nullable', 'string', 'max:255'],
+            'region' => ['nullable', 'string', 'max:255', Rule::in(RussianRegions::names())],
             'tags_input' => ['nullable', 'string', 'max:2000'],
             'is_manually_disabled' => ['boolean'],
             'operational_state' => ['required', Rule::in(['running', 'stopped'])],

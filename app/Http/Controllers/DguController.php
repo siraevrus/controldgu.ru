@@ -66,7 +66,10 @@ class DguController extends Controller
 
     public function create(): View
     {
-        return view('dgus.create', ['dgu' => new Dgu(['operational_state' => 'stopped'])]);
+        return view('dgus.create', [
+            'dgu' => new Dgu(['operational_state' => 'stopped']),
+            'russianRegions' => RussianRegions::names(),
+        ]);
     }
 
     public function store(StoreDguRequest $request): RedirectResponse
@@ -235,7 +238,10 @@ class DguController extends Controller
 
     public function edit(Dgu $dgu): View
     {
-        return view('dgus.edit', ['dgu' => $dgu]);
+        return view('dgus.edit', [
+            'dgu' => $dgu,
+            'russianRegions' => RussianRegions::names(),
+        ]);
     }
 
     public function update(UpdateDguRequest $request, Dgu $dgu): RedirectResponse
