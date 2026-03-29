@@ -11,20 +11,23 @@
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 sm:p-6">
                     <div class="text-sm text-gray-500">Всего ДГУ</div>
                     <div class="text-2xl sm:text-3xl font-semibold text-gray-900 tabular-nums">{{ $kpiTotal }}</div>
+                    <a href="{{ route('dgus.index') }}" class="text-xs text-indigo-600 hover:underline mt-2 inline-block">Список ДГУ</a>
                 </div>
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 sm:p-6">
                     <div class="text-sm text-gray-500">Активно по связи</div>
                     <div class="text-2xl sm:text-3xl font-semibold text-green-700 tabular-nums">{{ $kpiFresh }}</div>
                     <div class="text-xs text-gray-400 mt-1">Свежая телеметрия ≤ {{ $staleMinutes }} мин</div>
+                    <a href="{{ route('dgus.index', ['link' => 'fresh']) }}" class="text-xs text-indigo-600 hover:underline mt-2 inline-block">Список ДГУ</a>
                 </div>
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 sm:p-6">
                     <div class="text-sm text-gray-500">Неактивно</div>
                     <div class="text-2xl sm:text-3xl font-semibold text-amber-700 tabular-nums">{{ $kpiInactive }}</div>
+                    <a href="{{ route('dgus.index', ['link' => 'stale']) }}" class="text-xs text-indigo-600 hover:underline mt-2 inline-block">Список ДГУ</a>
                 </div>
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 sm:p-6">
                     <div class="text-sm text-gray-500">Активные тревоги</div>
                     <div class="text-2xl sm:text-3xl font-semibold text-red-700 tabular-nums">{{ $kpiOpenAlerts }}</div>
-                    <a href="{{ route('alerts.index') }}" class="text-xs text-indigo-600 hover:underline mt-2 inline-block">Все тревоги</a>
+                    <a href="{{ route('alerts.index') }}" class="text-xs text-indigo-600 hover:underline mt-2 inline-block">Журнал тревог</a>
                 </div>
             </div>
 
@@ -33,18 +36,25 @@
                     <div class="text-sm text-gray-500">Долго без данных</div>
                     <div class="text-2xl sm:text-3xl font-semibold text-red-700 tabular-nums">{{ $kpiLongOffline }}</div>
                     <div class="text-xs text-gray-400 mt-1">Нет телеметрии ≥ {{ $longOfflineHours }} ч</div>
+                    <div class="mt-2 flex flex-wrap gap-x-3 gap-y-1">
+                        <a href="{{ route('dgus.index', ['link' => 'long_offline']) }}" class="text-xs text-indigo-600 hover:underline">Список ДГУ</a>
+                        <a href="{{ route('map.index') }}" class="text-xs text-indigo-600 hover:underline">Карта</a>
+                    </div>
                 </div>
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 sm:p-6">
                     <div class="text-sm text-gray-500">В работе</div>
                     <div class="text-2xl sm:text-3xl font-semibold text-green-800 tabular-nums">{{ $kpiRunning }}</div>
+                    <a href="{{ route('dgus.index', ['operational' => 'running']) }}" class="text-xs text-indigo-600 hover:underline mt-2 inline-block">Список ДГУ</a>
                 </div>
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 sm:p-6">
                     <div class="text-sm text-gray-500">Остановлены</div>
                     <div class="text-2xl sm:text-3xl font-semibold text-gray-800 tabular-nums">{{ $kpiStopped }}</div>
+                    <a href="{{ route('dgus.index', ['operational' => 'stopped']) }}" class="text-xs text-indigo-600 hover:underline mt-2 inline-block">Список ДГУ</a>
                 </div>
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 sm:p-6">
                     <div class="text-sm text-gray-500">Ручное отключение</div>
                     <div class="text-2xl sm:text-3xl font-semibold text-rose-800 tabular-nums">{{ $kpiManualDisabled }}</div>
+                    <a href="{{ route('dgus.index', ['flags' => 'manual']) }}" class="text-xs text-indigo-600 hover:underline mt-2 inline-block">Список ДГУ</a>
                 </div>
             </div>
 
@@ -53,17 +63,22 @@
                     <div class="text-sm text-gray-500">Без координат</div>
                     <div class="text-2xl sm:text-3xl font-semibold text-gray-900 tabular-nums">{{ $kpiWithoutCoords }}</div>
                     <div class="text-xs text-gray-400 mt-1">Не попадут на карту</div>
-                    <a href="{{ route('map.index') }}" class="text-xs text-indigo-600 hover:underline mt-2 inline-block">Карта</a>
+                    <div class="mt-2 flex flex-wrap gap-x-3 gap-y-1">
+                        <a href="{{ route('dgus.index', ['flags' => 'no_coords']) }}" class="text-xs text-indigo-600 hover:underline">Список ДГУ</a>
+                        <a href="{{ route('map.index') }}" class="text-xs text-indigo-600 hover:underline">Карта</a>
+                    </div>
                 </div>
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 sm:p-6">
                     <div class="text-sm text-gray-500">Тревоги за 24 ч</div>
                     <div class="text-2xl sm:text-3xl font-semibold text-gray-900 tabular-nums">{{ $kpiAlertsLast24h }}</div>
                     <div class="text-xs text-gray-400 mt-1">Все статусы</div>
+                    <a href="{{ route('alerts.index') }}" class="text-xs text-indigo-600 hover:underline mt-2 inline-block">Журнал тревог</a>
                 </div>
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 sm:p-6">
                     <div class="text-sm text-gray-500">Снимков за час</div>
                     <div class="text-2xl sm:text-3xl font-semibold text-gray-900 tabular-nums">{{ $kpiSnapshotsLastHour }}</div>
                     <div class="text-xs text-gray-400 mt-1">По всем ДГУ</div>
+                    <a href="{{ route('dgus.index') }}" class="text-xs text-indigo-600 hover:underline mt-2 inline-block">Список ДГУ</a>
                 </div>
             </div>
 
@@ -71,7 +86,7 @@
                 <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-4">
                         <h3 class="text-base font-medium text-gray-900">Открытые тревоги</h3>
-                        <a href="{{ route('alerts.index') }}" class="text-sm text-indigo-600 hover:underline shrink-0">Все</a>
+                        <a href="{{ route('alerts.index') }}" class="text-sm text-indigo-600 hover:underline shrink-0">В журнал</a>
                     </div>
                     @if ($recentOpenAlerts->isEmpty())
                         <p class="px-6 py-8 text-sm text-gray-500 text-center">Открытых тревог нет.</p>
@@ -98,7 +113,7 @@
                 <div class="bg-white shadow-sm sm:rounded-lg p-6">
                     <div class="flex items-center justify-between gap-4 mb-4">
                         <h3 class="text-base font-medium text-gray-900">Уведомления</h3>
-                        <a href="{{ route('notifications.index') }}" class="text-sm text-indigo-600 hover:underline shrink-0">Открыть</a>
+                        <a href="{{ route('notifications.index') }}" class="text-sm text-indigo-600 hover:underline shrink-0">Все уведомления</a>
                     </div>
                     <div class="text-3xl font-semibold {{ $unreadNotifications > 0 ? 'text-amber-700' : 'text-gray-400' }}">{{ $unreadNotifications }}</div>
                     <p class="text-sm text-gray-500 mt-2">Непрочитанных в вашем аккаунте</p>
@@ -106,8 +121,9 @@
             </div>
 
             <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-100">
+                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-4">
                     <h3 class="text-base font-medium text-gray-900">Топ регионов по числу ДГУ</h3>
+                    <a href="{{ route('dgus.index') }}" class="text-sm text-indigo-600 hover:underline shrink-0">Все ДГУ</a>
                 </div>
                 @if ($regionsTop->isEmpty())
                     <p class="px-6 py-6 text-sm text-gray-500">Нет заполненных регионов.</p>
@@ -122,7 +138,9 @@
                         <tbody class="divide-y divide-gray-100">
                             @foreach ($regionsTop as $row)
                                 <tr>
-                                    <td class="px-6 py-2 text-gray-900">{{ $row->region }}</td>
+                                    <td class="px-6 py-2 text-gray-900">
+                                        <a href="{{ route('dgus.index', ['region' => $row->region]) }}" class="text-indigo-600 hover:underline">{{ $row->region }}</a>
+                                    </td>
                                     <td class="px-6 py-2 text-right tabular-nums text-gray-700">{{ $row->c }}</td>
                                 </tr>
                             @endforeach

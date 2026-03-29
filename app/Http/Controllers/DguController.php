@@ -52,13 +52,35 @@ class DguController extends Controller
                 $q->whereNull('last_telemetry_at')
                     ->orWhere('last_telemetry_at', '<', now()->subMinutes($staleMinutes));
             });
+        } elseif ($link === 'long_offline') {
+            $longH = (int) config('telemetry.long_offline_hours', 12);
+            $query->where(function ($q) use ($longH): void {
+                $q->whereNull('last_telemetry_at')
+                    ->orWhere('last_telemetry_at', '<', now()->subHours($longH));
+            });
+        }
+
+        $operational = $request->string('operational')->toString();
+        if ($operational === 'running') {
+            $query->where('operational_state', 'running');
+        } elseif ($operational === 'stopped') {
+            $query->where('operational_state', 'stopped');
+        }
+
+        $flags = $request->string('flags')->toString();
+        if ($flags === 'manual') {
+            $query->where('is_manually_disabled', true);
+        } elseif ($flags === 'no_coords') {
+            $query->where(function ($q): void {
+                $q->whereNull('latitude')->orWhereNull('longitude');
+            });
         }
 
         $dgus = $query->paginate(15)->withQueryString();
 
         return view('dgus.index', [
             'dgus' => $dgus,
-            'filters' => $request->only(['serial', 'region', 'model_name', 'link']),
+            'filters' => $request->only(['serial', 'region', 'model_name', 'link', 'operational', 'flags']),
             'russianRegions' => RussianRegions::names(),
             'staleMinutes' => $staleMinutes,
         ]);

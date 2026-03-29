@@ -23,10 +23,24 @@
                     @endforeach
                 </select>
                 <input type="text" name="model_name" value="{{ $filters['model_name'] ?? '' }}" placeholder="Модель" class="border-gray-300 rounded-md min-w-[5rem] flex-1 px-2 py-2 shadow-sm" />
-                <select name="link" class="border-gray-300 rounded-md min-w-[11rem] max-w-[14rem] shrink-0 px-2 py-2 shadow-sm">
+                <select name="link" class="border-gray-300 rounded-md min-w-[11rem] max-w-[16rem] shrink-0 px-2 py-2 shadow-sm">
                     <option value="">Связь: все</option>
                     <option value="fresh" @selected(($filters['link'] ?? '') === 'fresh')>Активна (≤ {{ $staleMinutes }} мин)</option>
                     <option value="stale" @selected(($filters['link'] ?? '') === 'stale')>Нет связи / устарела</option>
+                    @php
+                        $longOfflineHours = (int) config('telemetry.long_offline_hours', 12);
+                    @endphp
+                    <option value="long_offline" @selected(($filters['link'] ?? '') === 'long_offline')>Долго без данных (≥ {{ $longOfflineHours }} ч)</option>
+                </select>
+                <select name="operational" class="border-gray-300 rounded-md min-w-[9rem] shrink-0 px-2 py-2 shadow-sm">
+                    <option value="">Состояние: все</option>
+                    <option value="running" @selected(($filters['operational'] ?? '') === 'running')>В работе</option>
+                    <option value="stopped" @selected(($filters['operational'] ?? '') === 'stopped')>Остановлены</option>
+                </select>
+                <select name="flags" class="border-gray-300 rounded-md min-w-[10rem] shrink-0 px-2 py-2 shadow-sm">
+                    <option value="">Дополнительно</option>
+                    <option value="manual" @selected(($filters['flags'] ?? '') === 'manual')>Ручное отключение</option>
+                    <option value="no_coords" @selected(($filters['flags'] ?? '') === 'no_coords')>Без координат</option>
                 </select>
                 <div class="flex gap-2 shrink-0 ml-auto">
                     <button type="submit" class="px-4 py-2 bg-gray-800 text-white rounded-md whitespace-nowrap">Фильтр</button>
