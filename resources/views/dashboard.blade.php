@@ -7,62 +7,62 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 [&>div]:min-w-0">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 sm:p-6">
                     <div class="text-sm text-gray-500">Всего ДГУ</div>
-                    <div class="text-3xl font-semibold text-gray-900">{{ $kpiTotal }}</div>
+                    <div class="text-2xl sm:text-3xl font-semibold text-gray-900 tabular-nums">{{ $kpiTotal }}</div>
                 </div>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 sm:p-6">
                     <div class="text-sm text-gray-500">Активно по связи</div>
-                    <div class="text-3xl font-semibold text-green-700">{{ $kpiFresh }}</div>
+                    <div class="text-2xl sm:text-3xl font-semibold text-green-700 tabular-nums">{{ $kpiFresh }}</div>
                     <div class="text-xs text-gray-400 mt-1">Свежая телеметрия ≤ {{ $staleMinutes }} мин</div>
                 </div>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 sm:p-6">
                     <div class="text-sm text-gray-500">Неактивно</div>
-                    <div class="text-3xl font-semibold text-amber-700">{{ $kpiInactive }}</div>
+                    <div class="text-2xl sm:text-3xl font-semibold text-amber-700 tabular-nums">{{ $kpiInactive }}</div>
                 </div>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 sm:p-6">
                     <div class="text-sm text-gray-500">Активные тревоги</div>
-                    <div class="text-3xl font-semibold text-red-700">{{ $kpiOpenAlerts }}</div>
+                    <div class="text-2xl sm:text-3xl font-semibold text-red-700 tabular-nums">{{ $kpiOpenAlerts }}</div>
                     <a href="{{ route('alerts.index') }}" class="text-xs text-indigo-600 hover:underline mt-2 inline-block">Все тревоги</a>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 [&>div]:min-w-0">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 sm:p-6">
                     <div class="text-sm text-gray-500">Долго без данных</div>
-                    <div class="text-3xl font-semibold text-red-700">{{ $kpiLongOffline }}</div>
+                    <div class="text-2xl sm:text-3xl font-semibold text-red-700 tabular-nums">{{ $kpiLongOffline }}</div>
                     <div class="text-xs text-gray-400 mt-1">Нет телеметрии ≥ {{ $longOfflineHours }} ч</div>
                 </div>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 sm:p-6">
                     <div class="text-sm text-gray-500">В работе</div>
-                    <div class="text-3xl font-semibold text-green-800">{{ $kpiRunning }}</div>
+                    <div class="text-2xl sm:text-3xl font-semibold text-green-800 tabular-nums">{{ $kpiRunning }}</div>
                 </div>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 sm:p-6">
                     <div class="text-sm text-gray-500">Остановлены</div>
-                    <div class="text-3xl font-semibold text-gray-800">{{ $kpiStopped }}</div>
+                    <div class="text-2xl sm:text-3xl font-semibold text-gray-800 tabular-nums">{{ $kpiStopped }}</div>
                 </div>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 sm:p-6">
                     <div class="text-sm text-gray-500">Ручное отключение</div>
-                    <div class="text-3xl font-semibold text-rose-800">{{ $kpiManualDisabled }}</div>
+                    <div class="text-2xl sm:text-3xl font-semibold text-rose-800 tabular-nums">{{ $kpiManualDisabled }}</div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+            <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 [&>div]:min-w-0">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 sm:p-6">
                     <div class="text-sm text-gray-500">Без координат</div>
-                    <div class="text-3xl font-semibold text-gray-900">{{ $kpiWithoutCoords }}</div>
+                    <div class="text-2xl sm:text-3xl font-semibold text-gray-900 tabular-nums">{{ $kpiWithoutCoords }}</div>
                     <div class="text-xs text-gray-400 mt-1">Не попадут на карту</div>
                     <a href="{{ route('map.index') }}" class="text-xs text-indigo-600 hover:underline mt-2 inline-block">Карта</a>
                 </div>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 sm:p-6">
                     <div class="text-sm text-gray-500">Тревоги за 24 ч</div>
-                    <div class="text-3xl font-semibold text-gray-900">{{ $kpiAlertsLast24h }}</div>
+                    <div class="text-2xl sm:text-3xl font-semibold text-gray-900 tabular-nums">{{ $kpiAlertsLast24h }}</div>
                     <div class="text-xs text-gray-400 mt-1">Все статусы</div>
                 </div>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 sm:p-6">
                     <div class="text-sm text-gray-500">Снимков за час</div>
-                    <div class="text-3xl font-semibold text-gray-900">{{ $kpiSnapshotsLastHour }}</div>
+                    <div class="text-2xl sm:text-3xl font-semibold text-gray-900 tabular-nums">{{ $kpiSnapshotsLastHour }}</div>
                     <div class="text-xs text-gray-400 mt-1">По всем ДГУ</div>
                 </div>
             </div>
