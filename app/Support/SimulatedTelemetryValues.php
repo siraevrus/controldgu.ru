@@ -16,36 +16,37 @@ final class SimulatedTelemetryValues
 
         if (! $running) {
             return [
-                $P::POWER_CURRENT_KW => self::rf(0, 2.5, 1),
-                $P::CURRENT_A => self::rf(5, 25, 1),
-                $P::VOLTAGE_V => self::rf(374, 390, 1),
-                $P::FREQUENCY_HZ => self::rf(49.8, 50.05, 2),
-                $P::ENGINE_RPM => random_int(80, 160),
-                $P::FUEL_CONSUMPTION_LPH => self::rf(0, 0.7, 2),
-                $P::COOLANT_TEMP_C => self::rf(36, 48, 1),
-                $P::OIL_PRESSURE_BAR => self::rf(2.25, 2.95, 2),
-                $P::FUEL_LEVEL_PCT => self::rf(25, 98, 1),
+                $P::POWER_CURRENT_KW => self::rf(0, 1.2, 1),
+                $P::CURRENT_A => self::rf(8, 16, 1),
+                $P::VOLTAGE_V => self::rf(378, 386, 1),
+                $P::FREQUENCY_HZ => self::rf(49.88, 50.02, 2),
+                $P::ENGINE_RPM => random_int(105, 135),
+                $P::FUEL_CONSUMPTION_LPH => self::rf(0, 0.35, 2),
+                $P::COOLANT_TEMP_C => self::rf(39, 45, 1),
+                $P::OIL_PRESSURE_BAR => self::rf(2.5, 2.8, 2),
+                $P::FUEL_LEVEL_PCT => self::rf(58, 88, 1),
                 $P::RUNTIME_HOURS => self::rf(500 + ($dgu->id % 400), 1500 + ($dgu->id % 200), 2),
-                $P::AGGREGATE_STATUS => random_int(1, 100) <= 90 ? 'ok' : 'warning',
+                $P::AGGREGATE_STATUS => random_int(1, 100) <= 96 ? 'ok' : 'warning',
             ];
         }
 
         $nominal = max(30.0, (float) $dgu->nominal_power_kw);
-        $load = random_int(18, 96) / 100;
+        // Нагрузка ближе к реальной «рабочей» зоне, без экстремумов 18–96 %.
+        $load = random_int(48, 78) / 100;
         $powerRaw = $nominal * $load;
         $power = round(min(104.0, max(8.0, $powerRaw)), 1);
 
-        $current = round(min(198.0, max(25.0, $power / max(8.0, $nominal) * 175 + self::jitter(12))), 1);
-        $voltage = round(min(419.0, max(381.0, self::rf(385, 415, 1))), 1);
-        $frequency = round(min(50.45, max(49.55, self::rf(49.6, 50.4, 2))), 2);
-        $rpm = min(1517, max(1482, random_int(1485, 1512)));
-        $fuelLph = round(min(33.5, max(1.0, 6 + ($power / 104) * 26 + self::jitter(2.5))), 2);
-        $coolant = round(min(93.0, max(61.0, 72 + 16 * $load + self::jitter(3.5))), 1);
-        $oil = round(min(4.95, max(2.55, 3.4 + 0.9 * $load + self::jitter(0.25))), 2);
-        $fuelPct = round(min(98.0, max(14.0, self::rf(35, 96, 1))), 1);
-        $runtime = round(800 + ($dgu->id % 400) + random_int(0, 300) / 10 + $load * 50, 2);
+        $current = round(min(198.0, max(25.0, $power / max(8.0, $nominal) * 175 + self::jitter(4))), 1);
+        $voltage = round(min(419.0, max(381.0, self::rf(398, 406, 1))), 1);
+        $frequency = round(min(50.45, max(49.55, self::rf(49.88, 50.12, 2))), 2);
+        $rpm = min(1510, max(1488, random_int(1492, 1505)));
+        $fuelLph = round(min(33.5, max(1.0, 6 + ($power / 104) * 26 + self::jitter(0.9))), 2);
+        $coolant = round(min(93.0, max(61.0, 72 + 16 * $load + self::jitter(1.2))), 1);
+        $oil = round(min(4.95, max(2.55, 3.4 + 0.9 * $load + self::jitter(0.1))), 2);
+        $fuelPct = round(min(98.0, max(14.0, self::rf(55, 82, 1))), 1);
+        $runtime = round(800 + ($dgu->id % 400) + random_int(0, 80) / 10 + $load * 50, 2);
 
-        $aggregate = random_int(1, 100) <= 88 ? 'ok' : (random_int(1, 100) <= 50 ? 'warning' : 'ok');
+        $aggregate = random_int(1, 100) <= 94 ? 'ok' : (random_int(1, 100) <= 40 ? 'warning' : 'ok');
 
         return [
             $P::POWER_CURRENT_KW => $power,
